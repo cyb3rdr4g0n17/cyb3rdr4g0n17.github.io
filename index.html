@@ -1,22 +1,780 @@
 <!DOCTYPE html>
-<html lang="en" >
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>App Menu With Lock Screen</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0">
-<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500&display=swap" rel="stylesheet"><link rel="stylesheet" href="./style.css">
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rahul Singh | cyb3rdr4g0n17 — Cybersecurity, Embedded Systems & AI</title>
+  <meta name="description" content="Portfolio of Rahul Singh (cyb3rdr4g0n17) - Systems & Security Explorer, Hardware Maker, and Developer of mission-critical and resilient applications.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐉</text></svg>">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Orbitron:wght@600;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<!-- partial:index.partial.html -->
-<div id="root"></div>
-<!-- partial -->
-  <script src='https://unpkg.com/react@17/umd/react.development.js'></script>
-<script src='https://unpkg.com/react-dom@17/umd/react-dom.development.js'></script>
-<script src='https://unpkg.com/browse/@types/react@16.4.14/index.d.ts'></script>
-<script src='https://unpkg.com/browse/@types/react-dom@17.0.2/index.d.ts'></script>
-<script src='https://cdnjs.cloudflare.com/ajax/libs/classnames/2.3.1/index.min.js'></script>
-<script src='https://codepen.io/Hyperplexed/pen/xxYJYjM/54407644e24173ad6019b766443bf2a6.js'></script><script  src="./script.js"></script>
+  <!-- Ambient Audio / Synth Canvas -->
+  <canvas id="cyberCanvas"></canvas>
+  <div class="crt-scanline"></div>
+  <div class="radial-glow"></div>
 
+  <!-- Top Cyber Status Ribbon -->
+  <header class="cyber-header" id="topNav">
+    <div class="nav-container">
+      <a href="#hero" class="brand-logo" id="brandLogo">
+        <span class="dragon-glyph">λ_</span>CYB3RDR4G0N
+        <span class="blinking-cursor">█</span>
+      </a>
+
+      <div class="hud-telemetry">
+        <div class="telemetry-item">
+          <span class="telemetry-label">SYS_STATE</span>
+          <span class="telemetry-value text-green"><i class="fa-solid fa-circle-dot pulse-fast"></i> ACTIVE</span>
+        </div>
+        <div class="telemetry-item" id="clockTelemetry">
+          <span class="telemetry-label">LOCAL_TIME</span>
+          <span class="telemetry-value font-mono" id="hudClock">--:--:-- IST</span>
+        </div>
+      </div>
+
+      <nav class="nav-links" id="navLinks">
+        <a href="#about" class="nav-link"><i class="fa-solid fa-terminal"></i> <span>About</span></a>
+        <a href="#skills" class="nav-link"><i class="fa-solid fa-microchip"></i> <span>Arsenal</span></a>
+        <a href="#projects" class="nav-link"><i class="fa-solid fa-code-fork"></i> <span>Projects</span></a>
+        <a href="#terminal-section" class="nav-link"><i class="fa-solid fa-keyboard"></i> <span>Console</span></a>
+        <a href="#contact" class="nav-link"><i class="fa-solid fa-satellite-dish"></i> <span>Connect</span></a>
+      </nav>
+
+      <div class="nav-controls">
+        <button class="audio-toggle-btn" id="audioToggle" title="Toggle Synthesizer Sound FX">
+          <i class="fa-solid fa-volume-high" id="audioIcon"></i>
+          <span class="btn-tooltip">Audio FX</span>
+        </button>
+        <a href="https://github.com/cyb3rdr4g0n17" target="_blank" rel="noopener noreferrer" class="btn-github-pill" id="githubExternalBtn">
+          <i class="fa-brands fa-github"></i>
+          <span>GitHub</span>
+        </a>
+      </div>
+
+      <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle Navigation Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="page-content">
+
+    <!-- HERO SECTION -->
+    <section class="section hero-section" id="hero">
+      <div class="container hero-grid">
+        <div class="hero-content">
+          <div class="cyber-badge-wrap">
+            <span class="cyber-badge">
+              <i class="fa-solid fa-shield-halved"></i> MISSION DIRECTIVE: BUILD RESILIENT SYSTEMS
+            </span>
+          </div>
+
+          <h1 class="hero-name glitch-hover" data-text="RAHUL SINGH">RAHUL SINGH</h1>
+          
+          <div class="typewriter-container font-mono">
+            <span class="prompt-prefix">root@dragon:~$ </span>
+            <span class="typed-text" id="typewriterText"></span>
+            <span class="typed-cursor">|</span>
+          </div>
+
+          <p class="hero-lead">
+            Systems & security technologist bridging the continuum between low-level electronic hardware, autonomous defense platforms, and resilient software engineered to perform under real-world constraints.
+          </p>
+
+          <div class="hero-actions">
+            <a href="#projects" class="cyber-btn cyber-btn-primary" id="exploreProjectsBtn">
+              <span class="btn-inner">
+                <i class="fa-solid fa-rocket"></i> EXPLORE REPOSITORIES
+              </span>
+              <div class="btn-glitch-border"></div>
+            </a>
+            <a href="#terminal-section" class="cyber-btn cyber-btn-secondary" id="launchConsoleBtn">
+              <span class="btn-inner">
+                <i class="fa-solid fa-terminal"></i> LAUNCH CONSOLE
+              </span>
+            </a>
+            <a href="https://github.com/cyb3rdr4g0n17" target="_blank" rel="noopener noreferrer" class="cyber-btn cyber-btn-ghost">
+              <span class="btn-inner">
+                <i class="fa-brands fa-github"></i> PROFILE
+              </span>
+            </a>
+          </div>
+
+          <div class="hero-quick-stats font-mono">
+            <div class="stat-pill">
+              <span class="stat-num text-cyan" id="statRepos">12</span>
+              <span class="stat-lbl">REPOSITORIES</span>
+            </div>
+            <div class="stat-pill">
+              <span class="stat-num text-green">100%</span>
+              <span class="stat-lbl">OPEN SOURCE</span>
+            </div>
+            <div class="stat-pill">
+              <span class="stat-num text-magenta">2019+</span>
+              <span class="stat-lbl">EXPERIENCE</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hero Graphic HUD Card -->
+        <div class="hero-visual">
+          <div class="hud-card" id="hudCard">
+            <div class="hud-card-corners">
+              <div class="corner corner-tl"></div>
+              <div class="corner corner-tr"></div>
+              <div class="corner corner-bl"></div>
+              <div class="corner corner-br"></div>
+            </div>
+
+            <div class="hud-card-header">
+              <div class="hud-header-title">
+                <span class="status-indicator online"></span>
+                <span>CYBER_IDENTITY_V2.6</span>
+              </div>
+              <span class="font-mono text-cyan text-xs">ID #48344737</span>
+            </div>
+
+            <div class="hud-avatar-wrapper">
+              <div class="avatar-ring-outer"></div>
+              <div class="avatar-ring-inner"></div>
+              <img src="https://avatars.githubusercontent.com/u/48344737?v=4" alt="Rahul Singh Avatar" class="hud-avatar" id="userAvatar">
+              <div class="avatar-dragon-badge">🐉</div>
+            </div>
+
+            <div class="hud-card-body">
+              <h3 class="hud-username">cyb3rdr4g0n17</h3>
+              <p class="hud-role font-mono text-cyan">SYSTEMS & SECURITY MAKER</p>
+              
+              <div class="hud-specs">
+                <div class="spec-row">
+                  <span class="spec-name font-mono"><i class="fa-solid fa-microchip text-xs"></i> HARDWARE</span>
+                  <span class="spec-val font-mono">Raspberry Pi • Arduino</span>
+                </div>
+                <div class="spec-row">
+                  <span class="spec-name font-mono"><i class="fa-solid fa-code text-xs"></i> CORE STACK</span>
+                  <span class="spec-val font-mono">Python • C++ • Bash • JS</span>
+                </div>
+                <div class="spec-row">
+                  <span class="spec-name font-mono"><i class="fa-solid fa-shield text-xs"></i> DOMAINS</span>
+                  <span class="spec-val font-mono">Cybersecurity • AI • Defense</span>
+                </div>
+                <div class="spec-row">
+                  <span class="spec-name font-mono"><i class="fa-solid fa-satellite text-xs"></i> LOCATION</span>
+                  <span class="spec-val font-mono text-green">Online • Global Node</span>
+                </div>
+              </div>
+
+              <div class="hud-card-footer font-mono">
+                <span class="beacon-text"><i class="fa-solid fa-signal pulse-fast"></i> SECURE PROTOCOL ACTIVE</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT & PHILOSOPHY SECTION -->
+    <section class="section about-section" id="about">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-tag font-mono">// 01_ABOUT</div>
+          <h2 class="section-title">ENGINEERING PHILOSOPHY & BACKGROUND</h2>
+          <div class="section-divider"></div>
+        </div>
+
+        <div class="about-grid">
+          <div class="about-card glassmorphic">
+            <div class="card-icon text-cyan">
+              <i class="fa-solid fa-wave-square"></i>
+            </div>
+            <h3>Hardware to Software</h3>
+            <p>
+              From soldering circuit boards and debugging microcontrollers to writing low-level scripts and cloud-connected control interfaces, my journey began in electronics and physical computing. Understanding physical hardware grants deep insight into security boundaries and computational limits.
+            </p>
+          </div>
+
+          <div class="about-card glassmorphic">
+            <div class="card-icon text-green">
+              <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <h3>Security by Architecture</h3>
+            <p>
+              Security is not an afterthought or a patch; it is an architectural imperative. Whether analyzing network traffic, designing offline-first local platforms, or testing mobile environments, the goal is always zero-trust resilience and defensive robustness.
+            </p>
+          </div>
+
+          <div class="about-card glassmorphic">
+            <div class="card-icon text-magenta">
+              <i class="fa-solid fa-crosshairs"></i>
+            </div>
+            <h3>Mission-Critical & Defense</h3>
+            <p>
+              Technology reaches its peak purpose when it safeguards lives and augments human decision-making under intense pressure. This vision led to initiatives like the <strong>SSB TAT Handbook</strong>, empowering candidates preparing for national defense psychological evaluations.
+            </p>
+          </div>
+        </div>
+
+        <!-- Terminal Quote Box -->
+        <div class="terminal-quote-box font-mono glassmorphic">
+          <div class="quote-header">
+            <span class="circle-btn red"></span>
+            <span class="circle-btn yellow"></span>
+            <span class="circle-btn green"></span>
+            <span class="quote-title">manifesto.log</span>
+          </div>
+          <div class="quote-body">
+            <p class="text-cyan">> "I believe technology should enhance operational capability, reduce human risk, and deliver dependable performance under pressure. Every circuit etched and every script written is a step towards impenetrable, autonomous resilience."</p>
+            <span class="quote-author">— Rahul Singh (cyb3rdr4g0n17)</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SKILLS & ARSENAL MATRIX -->
+    <section class="section skills-section" id="skills">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-tag font-mono">// 02_ARSENAL</div>
+          <h2 class="section-title">TECHNICAL CAPABILITIES & PROFICIENCIES</h2>
+          <div class="section-divider"></div>
+        </div>
+
+        <div class="skills-matrix">
+          
+          <!-- Category 1: Languages -->
+          <div class="skill-category glassmorphic">
+            <div class="category-header">
+              <i class="fa-solid fa-terminal text-cyan"></i>
+              <h3>Programming Languages</h3>
+            </div>
+            <div class="skill-list">
+              <div class="skill-item">
+                <div class="skill-info">
+                  <span class="skill-name"><i class="fa-brands fa-python text-blue"></i> Python</span>
+                  <span class="skill-pct font-mono">92%</span>
+                </div>
+                <div class="skill-bar"><div class="skill-progress" style="width: 92%;"></div></div>
+              </div>
+              <div class="skill-item">
+                <div class="skill-info">
+                  <span class="skill-name"><i class="fa-solid fa-code text-magenta"></i> C / C++ (Embedded)</span>
+                  <span class="skill-pct font-mono">85%</span>
+                </div>
+                <div class="skill-bar"><div class="skill-progress" style="width: 85%;"></div></div>
+              </div>
+              <div class="skill-item">
+                <div class="skill-info">
+                  <span class="skill-name"><i class="fa-brands fa-square-js text-yellow"></i> JavaScript</span>
+                  <span class="skill-pct font-mono">88%</span>
+                </div>
+                <div class="skill-bar"><div class="skill-progress" style="width: 88%;"></div></div>
+              </div>
+              <div class="skill-item">
+                <div class="skill-info">
+                  <span class="skill-name"><i class="fa-solid fa-terminal text-green"></i> Bash / Shell Scripting</span>
+                  <span class="skill-pct font-mono">90%</span>
+                </div>
+                <div class="skill-bar"><div class="skill-progress" style="width: 90%;"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Category 2: Hardware & Embedded -->
+          <div class="skill-category glassmorphic">
+            <div class="category-header">
+              <i class="fa-solid fa-microchip text-magenta"></i>
+              <h3>Hardware & IoT Systems</h3>
+            </div>
+            <div class="skill-list">
+              <div class="skill-item">
+                <div class="skill-info">
+                  <span class="skill-name"><i class="fa-brands fa-raspberry-pi text-red"></i> Raspberry Pi & Single Board</span>
+                  <span class="skill-pct font-mono">90%</span>
+                </div>
+                <div class="skill-bar"><div class="skill-progress" style="width: 90%;"></div></div>
+              </div>
+              <div class="skill-item">
+                <div class="skill-info">
+                  <span class="skill-name"><i class="fa-solid fa-bolt text-cyan"></i> Arduino & Microcontrollers</span>
+                  <span class="skill-pct font-mono">88%</span>
+                </div>
+                <div class="skill-bar"><div class="skill-progress" style="width: 88%;"></div></div>
+              </div>
+              <div class="skill-item">
+                <div class="skill-info">
+                  <span class="skill-name"><i class="fa-solid fa-network-wired text-green"></i> Offline-First Signage / Edge</span>
+                  <span class="skill-pct font-mono">86%</span>
+                </div>
+                <div class="skill-bar"><div class="skill-progress" style="width: 86%;"></div></div>
+              </div>
+              <div class="skill-item">
+                <div class="skill-info">
+                  <span class="skill-name"><i class="fa-brands fa-android text-green"></i> Android On-Device SDK Tooling</span>
+                  <span class="skill-pct font-mono">84%</span>
+                </div>
+                <div class="skill-bar"><div class="skill-progress" style="width: 84%;"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Category 3: Security & Infrastructure -->
+          <div class="skill-category glassmorphic">
+            <div class="category-header">
+              <i class="fa-solid fa-user-shield text-green"></i>
+              <h3>Security & Infrastructure</h3>
+            </div>
+            <div class="skill-list">
+              <div class="skill-item">
+                <div class="skill-info">
+                  <span class="skill-name"><i class="fa-brands fa-linux text-yellow"></i> Linux Environment & Hardening</span>
+                  <span class="skill-pct font-mono">92%</span>
+                </div>
+                <div class="skill-bar"><div class="skill-progress" style="width: 92%;"></div></div>
+              </div>
+              <div class="skill-item">
+                <div class="skill-info">
+                  <span class="skill-name"><i class="fa-solid fa-lock text-cyan"></i> Defensive Architecture & Auditing</span>
+                  <span class="skill-pct font-mono">85%</span>
+                </div>
+                <div class="skill-bar"><div class="skill-progress" style="width: 85%;"></div></div>
+              </div>
+              <div class="skill-item">
+                <div class="skill-info">
+                  <span class="skill-name"><i class="fa-solid fa-user-secret text-magenta"></i> OSINT & Reconnaissance</span>
+                  <span class="skill-pct font-mono">82%</span>
+                </div>
+                <div class="skill-bar"><div class="skill-progress" style="width: 82%;"></div></div>
+              </div>
+              <div class="skill-item">
+                <div class="skill-info">
+                  <span class="skill-name"><i class="fa-brands fa-git-alt text-red"></i> Git / CI & Vercel Deployments</span>
+                  <span class="skill-pct font-mono">89%</span>
+                </div>
+                <div class="skill-bar"><div class="skill-progress" style="width: 89%;"></div></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Badges Marquee -->
+        <div class="tech-tags-cloud glassmorphic font-mono">
+          <span class="tag-badge"><i class="fa-brands fa-python"></i> Python 3</span>
+          <span class="tag-badge"><i class="fa-solid fa-microchip"></i> C++ / AVR</span>
+          <span class="tag-badge"><i class="fa-brands fa-js"></i> Modern JS</span>
+          <span class="tag-badge"><i class="fa-brands fa-linux"></i> Arch / Debian</span>
+          <span class="tag-badge"><i class="fa-brands fa-raspberry-pi"></i> RPi 4/5</span>
+          <span class="tag-badge"><i class="fa-solid fa-satellite"></i> IoT Edge</span>
+          <span class="tag-badge"><i class="fa-brands fa-android"></i> Termux & AndroidIDE</span>
+          <span class="tag-badge"><i class="fa-solid fa-brain"></i> NotebookLM AI</span>
+          <span class="tag-badge"><i class="fa-solid fa-shield"></i> Network Defense</span>
+          <span class="tag-badge"><i class="fa-brands fa-git"></i> Git Ops</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURED PROJECTS REPOSITORY -->
+    <section class="section projects-section" id="projects">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-tag font-mono">// 03_REPOSITORIES</div>
+          <h2 class="section-title">FEATURED WORK & OPEN SOURCE</h2>
+          <div class="section-divider"></div>
+        </div>
+
+        <!-- Filter Buttons -->
+        <div class="project-filters font-mono">
+          <button class="filter-btn active" data-filter="all">ALL PROJECTS [6]</button>
+          <button class="filter-btn" data-filter="defense">DEFENSE & WEB</button>
+          <button class="filter-btn" data-filter="hardware">HARDWARE & IOT</button>
+          <button class="filter-btn" data-filter="mobile">DEVOPS & MOBILE</button>
+          <button class="filter-btn" data-filter="security">SECURITY & AI</button>
+        </div>
+
+        <div class="projects-grid" id="projectsGrid">
+
+          <!-- Project 1: ssb-tat-handbook -->
+          <div class="project-card glassmorphic" data-category="defense">
+            <div class="project-card-header">
+              <div class="project-type-tag font-mono">
+                <i class="fa-solid fa-shield-halved text-cyan"></i> DEFENSE / PSYCH
+              </div>
+              <span class="project-status-badge badge-live">LIVE ON VERCEL</span>
+            </div>
+            
+            <h3 class="project-title">ssb-tat-handbook</h3>
+            <p class="project-desc">
+              Comprehensive interactive digital handbook and testing simulator designed for Indian Armed Forces SSB candidates to master the Thematic Apperception Test (TAT) psychological assessment.
+            </p>
+
+            <div class="project-tech-stack font-mono">
+              <span>JavaScript</span>
+              <span>Vercel</span>
+              <span>Web Audio</span>
+              <span>Psychometrics</span>
+            </div>
+
+            <div class="project-card-footer">
+              <a href="https://ssb-tat-handbook.vercel.app" target="_blank" rel="noopener noreferrer" class="project-link primary">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i> Live Demo
+              </a>
+              <a href="https://github.com/cyb3rdr4g0n17/ssb-tat-handbook" target="_blank" rel="noopener noreferrer" class="project-link secondary">
+                <i class="fa-brands fa-github"></i> Repository
+              </a>
+            </div>
+          </div>
+
+          <!-- Project 2: AndroidIDEInstaller -->
+          <div class="project-card glassmorphic" data-category="mobile">
+            <div class="project-card-header">
+              <div class="project-type-tag font-mono">
+                <i class="fa-brands fa-android text-green"></i> MOBILE DEVOPS
+              </div>
+              <span class="project-status-badge badge-stars"><i class="fa-solid fa-star"></i> 5 STARS</span>
+            </div>
+            
+            <h3 class="project-title">AndroidIDEInstaller</h3>
+            <p class="project-desc">
+              Automated command-line installer utility enabling developers to install and configure complete Android SDK development environments directly on their mobile phone through AndroidIDE.
+            </p>
+
+            <div class="project-tech-stack font-mono">
+              <span>Shell Script</span>
+              <span>Android SDK</span>
+              <span>AndroidIDE</span>
+              <span>Termux</span>
+            </div>
+
+            <div class="project-card-footer">
+              <a href="https://github.com/cyb3rdr4g0n17/AndroidIDEInstaller" target="_blank" rel="noopener noreferrer" class="project-link primary">
+                <i class="fa-brands fa-github"></i> View Repo (5★)
+              </a>
+            </div>
+          </div>
+
+          <!-- Project 3: digital-signage -->
+          <div class="project-card glassmorphic" data-category="hardware">
+            <div class="project-card-header">
+              <div class="project-type-tag font-mono">
+                <i class="fa-solid fa-tv text-magenta"></i> EMBEDDED / IOT
+              </div>
+              <span class="project-status-badge badge-offline">ZERO INTERNET</span>
+            </div>
+            
+            <h3 class="project-title">digital-signage</h3>
+            <p class="project-desc">
+              Local, offline-first digital signage platform in Python. Allows users to upload media, organize custom playlists, and display scheduled content on Raspberry Pi, Android TV, or standalone PC kiosks without internet.
+            </p>
+
+            <div class="project-tech-stack font-mono">
+              <span>Python</span>
+              <span>Raspberry Pi</span>
+              <span>Media Engine</span>
+              <span>Kiosk Mode</span>
+            </div>
+
+            <div class="project-card-footer">
+              <a href="https://github.com/cyb3rdr4g0n17/digital-signage" target="_blank" rel="noopener noreferrer" class="project-link primary">
+                <i class="fa-brands fa-github"></i> View Source
+              </a>
+            </div>
+          </div>
+
+          <!-- Project 4: Electronics -->
+          <div class="project-card glassmorphic" data-category="hardware">
+            <div class="project-card-header">
+              <div class="project-type-tag font-mono">
+                <i class="fa-solid fa-microchip text-yellow"></i> PHYSICAL COMPUTING
+              </div>
+              <span class="project-status-badge badge-hw">HARDWARE</span>
+            </div>
+            
+            <h3 class="project-title">Electronics (Arduino)</h3>
+            <p class="project-desc">
+              Embedded systems repository hosting source code, sensor interface drivers, and circuit controller sketches for Arduino boards and hardware prototyping modules.
+            </p>
+
+            <div class="project-tech-stack font-mono">
+              <span>C++</span>
+              <span>Arduino</span>
+              <span>Sensors</span>
+              <span>Circuit Design</span>
+            </div>
+
+            <div class="project-card-footer">
+              <a href="https://github.com/cyb3rdr4g0n17/Electronics" target="_blank" rel="noopener noreferrer" class="project-link primary">
+                <i class="fa-brands fa-github"></i> View Sketches
+              </a>
+            </div>
+          </div>
+
+          <!-- Project 5: open-notebook -->
+          <div class="project-card glassmorphic" data-category="security">
+            <div class="project-card-header">
+              <div class="project-type-tag font-mono">
+                <i class="fa-solid fa-brain text-cyan"></i> ARTIFICIAL INTELLIGENCE
+              </div>
+              <span class="project-status-badge badge-ai">LLM SYSTEM</span>
+            </div>
+            
+            <h3 class="project-title">open-notebook</h3>
+            <p class="project-desc">
+              Open-source alternative to Google's NotebookLM providing increased flexibility, private document processing, dynamic prompt generation, and knowledge synthesis.
+            </p>
+
+            <div class="project-tech-stack font-mono">
+              <span>Python</span>
+              <span>LLM</span>
+              <span>RAG</span>
+              <span>Knowledge Graphs</span>
+            </div>
+
+            <div class="project-card-footer">
+              <a href="https://github.com/cyb3rdr4g0n17/open-notebook" target="_blank" rel="noopener noreferrer" class="project-link primary">
+                <i class="fa-brands fa-github"></i> Explore Code
+              </a>
+            </div>
+          </div>
+
+          <!-- Project 6: SmsBomber / Sec -->
+          <div class="project-card glassmorphic" data-category="security">
+            <div class="project-card-header">
+              <div class="project-type-tag font-mono">
+                <i class="fa-solid fa-shield text-red"></i> SECURITY RESEARCH
+              </div>
+              <span class="project-status-badge badge-stars"><i class="fa-solid fa-star"></i> 4 STARS</span>
+            </div>
+            
+            <h3 class="project-title">SmsBomber</h3>
+            <p class="project-desc">
+              Python-based automated security testing utility designed to audit request rate-limiting, SMS gateway vulnerabilities, and API resilience under burst traffic.
+            </p>
+
+            <div class="project-tech-stack font-mono">
+              <span>Python</span>
+              <span>API Auditing</span>
+              <span>Automation</span>
+              <span>Pentesting</span>
+            </div>
+
+            <div class="project-card-footer">
+              <a href="https://github.com/cyb3rdr4g0n17/SmsBomber" target="_blank" rel="noopener noreferrer" class="project-link primary">
+                <i class="fa-brands fa-github"></i> View Repo (4★)
+              </a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- LIVE GITHUB TELEMETRY SECTION -->
+    <section class="section github-telemetry-section" id="telemetry">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-tag font-mono">// 04_TELEMETRY</div>
+          <h2 class="section-title">REAL-TIME GITHUB INSIGHTS</h2>
+          <div class="section-divider"></div>
+        </div>
+
+        <div class="telemetry-grid">
+          <div class="telemetry-card glassmorphic">
+            <div class="card-bar-title font-mono">
+              <i class="fa-solid fa-chart-line text-cyan"></i> PROFILE_STATS_STREAM
+            </div>
+            <div class="telemetry-img-wrap">
+              <img src="https://github-readme-stats.vercel.app/api?username=cyb3rdr4g0n17&show_icons=true&theme=radical&hide_border=true&bg_color=00000000&title_color=00f5d4&icon_color=ff3366&text_color=c9d1d9" alt="GitHub Profile Statistics" loading="lazy">
+            </div>
+          </div>
+
+          <div class="telemetry-card glassmorphic">
+            <div class="card-bar-title font-mono">
+              <i class="fa-solid fa-chart-pie text-magenta"></i> LANGUAGE_DISTRIBUTION
+            </div>
+            <div class="telemetry-img-wrap">
+              <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=cyb3rdr4g0n17&layout=compact&theme=radical&hide_border=true&bg_color=00000000&title_color=00f5d4&text_color=c9d1d9" alt="Top Languages Statistics" loading="lazy">
+            </div>
+          </div>
+        </div>
+
+        <div class="streak-card glassmorphic text-center">
+          <div class="card-bar-title font-mono">
+            <i class="fa-solid fa-fire-flame-curved text-red"></i> COMMIT_STREAK_ACTIVITY
+          </div>
+          <div class="telemetry-img-wrap">
+            <img src="https://github-readme-streak-stats.herokuapp.com/?user=cyb3rdr4g0n17&theme=radical&hide_border=true&background=00000000&ring=00f5d4&fire=ff3366&currStreakLabel=00f5d4" alt="GitHub Streak Tracker" loading="lazy">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- INTERACTIVE CYBER CONSOLE / TERMINAL EMULATOR -->
+    <section class="section terminal-section" id="terminal-section">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-tag font-mono">// 05_COMMAND_CENTER</div>
+          <h2 class="section-title">INTERACTIVE CYBER TERMINAL</h2>
+          <div class="section-divider"></div>
+        </div>
+
+        <div class="cyber-terminal-window glassmorphic font-mono" id="cyberTerminal">
+          <div class="terminal-titlebar">
+            <div class="window-controls">
+              <span class="win-btn win-close"></span>
+              <span class="win-btn win-minimize"></span>
+              <span class="win-btn win-maximize"></span>
+            </div>
+            <div class="terminal-title">
+              <i class="fa-solid fa-terminal text-cyan"></i> cyb3rdr4g0n17@dragon-node: ~
+            </div>
+            <div class="terminal-shortcuts">
+              <button class="term-quick-cmd" data-cmd="help">help</button>
+              <button class="term-quick-cmd" data-cmd="bio">bio</button>
+              <button class="term-quick-cmd" data-cmd="projects">projects</button>
+              <button class="term-quick-cmd" data-cmd="skills">skills</button>
+              <button class="term-quick-cmd" data-cmd="dragon">dragon</button>
+              <button class="term-quick-cmd" data-cmd="clear">clear</button>
+            </div>
+          </div>
+
+          <div class="terminal-output" id="terminalOutput">
+            <div class="term-line banner-line">
+              <pre class="ascii-dragon">
+    \                  /
+     \  __        __  /     ╔═════════════════════════════════════════╗
+      \ \ \      / / /      ║   CYB3RDR4G0N CYBERNETIC SHELL v2.6     ║
+       \ \ \    / / /       ║   Security • Embedded • Autonomous AI   ║
+        \ \ \  / / /        ╚═════════════════════════════════════════╝
+         \ \ \/ / /
+          \ \  / /
+           \/  \/
+              </pre>
+            </div>
+            <div class="term-line info-line">Type <span class="highlight-cyan">'help'</span> to see all available commands, or click the quick pills above.</div>
+          </div>
+
+          <div class="terminal-input-row">
+            <span class="term-user-prompt">guest@cyb3rdr4g0n:~$</span>
+            <input type="text" id="terminalInput" class="term-input font-mono" placeholder="Type a command (e.g. 'help', 'bio', 'projects')..." autocomplete="off" spellcheck="false">
+            <button id="termSubmitBtn" class="term-submit-btn font-mono" aria-label="Execute command"><i class="fa-solid fa-arrow-turn-down"></i></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONNECT & COLLABORATE SECTION -->
+    <section class="section contact-section" id="contact">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-tag font-mono">// 06_UPLINK</div>
+          <h2 class="section-title">COMMUNICATIONS & TRANSMISSION</h2>
+          <div class="section-divider"></div>
+        </div>
+
+        <div class="contact-grid">
+          
+          <div class="contact-card glassmorphic">
+            <h3 class="contact-box-title"><i class="fa-solid fa-satellite-dish text-cyan"></i> Initiate Connection</h3>
+            <p>
+              Interested in defense technology, embedded hardware hacking, autonomous platforms, or cybersecurity research? Broadcast a transmission or reach out via GitHub.
+            </p>
+
+            <div class="transmission-details font-mono">
+              <div class="detail-row">
+                <span class="detail-label">CODENAME:</span>
+                <span class="detail-val text-cyan">Rahul Singh (cyb3rdr4g0n17)</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">COMM CHANNELS:</span>
+                <span class="detail-val text-green">GitHub Issues / Discussions</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">ENCRYPTION:</span>
+                <span class="detail-val text-magenta">256-Bit Standard</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">RESPONSE TIME:</span>
+                <span class="detail-val">&lt; 24 Standard Solar Hours</span>
+              </div>
+            </div>
+
+            <div class="social-channels">
+              <a href="https://github.com/cyb3rdr4g0n17" target="_blank" rel="noopener noreferrer" class="social-btn github">
+                <i class="fa-brands fa-github"></i> GitHub Profile
+              </a>
+              <a href="https://ssb-tat-handbook.vercel.app" target="_blank" rel="noopener noreferrer" class="social-btn vercel">
+                <i class="fa-solid fa-globe"></i> SSB TAT Live Platform
+              </a>
+            </div>
+          </div>
+
+          <!-- Dispatch Message Simulator -->
+          <div class="contact-form-wrap glassmorphic">
+            <h3 class="contact-box-title"><i class="fa-solid fa-paper-plane text-green"></i> Send Secure Signal</h3>
+            <form id="contactForm" class="contact-form">
+              <div class="form-group">
+                <label for="contactName" class="font-mono">CALLSIGN / NAME</label>
+                <input type="text" id="contactName" name="name" placeholder="e.g. Agent Phoenix" required class="cyber-input font-mono">
+              </div>
+              <div class="form-group">
+                <label for="contactEmail" class="font-mono">COMMS FREQUENCY (EMAIL)</label>
+                <input type="email" id="contactEmail" name="email" placeholder="e.g. operative@network.org" required class="cyber-input font-mono">
+              </div>
+              <div class="form-group">
+                <label for="contactMessage" class="font-mono">TRANSMISSION PAYLOAD</label>
+                <textarea id="contactMessage" name="message" rows="4" placeholder="Enter transmission message, project proposal, or inquiry..." required class="cyber-input font-mono"></textarea>
+              </div>
+              <button type="submit" class="cyber-btn cyber-btn-primary full-width" id="sendSignalBtn">
+                <span class="btn-inner">
+                  <i class="fa-solid fa-paper-plane"></i> TRANSMIT SIGNAL
+                </span>
+              </button>
+              <div id="formFeedback" class="form-feedback font-mono"></div>
+            </form>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- CYBER FOOTER -->
+  <footer class="cyber-footer font-mono">
+    <div class="container footer-content">
+      <div class="footer-left">
+        <span class="text-cyan font-bold">λ_CYB3RDR4G0N</span> // RAHUL SINGH
+        <p class="text-xs text-muted">Building secure, intelligent, and resilient systems for real-world and mission-critical applications.</p>
+      </div>
+
+      <div class="footer-center">
+        <div class="pgp-badge">
+          <i class="fa-solid fa-key text-xs text-green"></i>
+          <span>SECURE RECON VERIFIED</span>
+        </div>
+      </div>
+
+      <div class="footer-right">
+        <a href="#hero" class="back-to-top" id="backToTopBtn">
+          <i class="fa-solid fa-chevron-up"></i> RETURN_TO_TOP
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
 </body>
 </html>

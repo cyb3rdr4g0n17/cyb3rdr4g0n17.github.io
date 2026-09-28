@@ -1,479 +1,525 @@
-"use strict";
-var UserStatus;
-(function (UserStatus) {
-    UserStatus["LoggedIn"] = "Logged In";
-    UserStatus["LoggingIn"] = "Logging In";
-    UserStatus["LoggedOut"] = "Logged Out";
-    UserStatus["LogInError"] = "Log In Error";
-    UserStatus["VerifyingLogIn"] = "Verifying Log In";
-})(UserStatus || (UserStatus = {}));
-var Default;
-(function (Default) {
-    Default["PIN"] = "1234";
-})(Default || (Default = {}));
-var WeatherType;
-(function (WeatherType) {
-    WeatherType["Cloudy"] = "Cloudy";
-    WeatherType["Rainy"] = "Rainy";
-    WeatherType["Stormy"] = "Stormy";
-    WeatherType["Sunny"] = "Sunny";
-})(WeatherType || (WeatherType = {}));
-const defaultPosition = () => ({
-    left: 0,
-    x: 0
-});
-const N = {
-    clamp: (min, value, max) => Math.min(Math.max(min, value), max),
-    rand: (min, max) => Math.floor(Math.random() * (max - min + 1) + min)
-};
-const T = {
-    format: (date) => {
-        const hours = T.formatHours(date.getHours()), minutes = date.getMinutes(), seconds = date.getSeconds();
-        return `${hours}:${T.formatSegment(minutes)}`;
-    },
-    formatHours: (hours) => {
-        return hours % 12 === 0 ? 12 : hours % 12;
-    },
-    formatSegment: (segment) => {
-        return segment < 10 ? `0${segment}` : segment;
+/**
+ * CYB3RDR4G0N (Rahul Singh) Portfolio Logic
+ * Full interactive features: Canvas Cyber Grid, Terminal Console,
+ * Synthesizer FX, Project Filtering, Typewriter, and Telemetry.
+ */
+
+document.addEventListener('DOMContentLoaded', () => {
+
+  /* ==========================================================================
+     1. Web Audio Synthesizer (Cyber Sound FX)
+     ========================================================================== */
+  let audioCtx = null;
+  let audioEnabled = false;
+  const audioToggle = document.getElementById('audioToggle');
+  const audioIcon = document.getElementById('audioIcon');
+
+  function initAudio() {
+    if (!audioCtx) {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      audioCtx = new AudioContext();
     }
-};
-const LogInUtility = {
-    verify: async (pin) => {
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                if (pin === Default.PIN) {
-                    resolve(true);
-                }
-                else {
-                    reject(`Invalid pin: ${pin}`);
-                }
-            }, N.rand(300, 700));
-        });
+  }
+
+  function playSynthSound(freq = 440, type = 'sine', duration = 0.08, gainVal = 0.05) {
+    if (!audioEnabled || !audioCtx) return;
+    try {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      gain.gain.setValueAtTime(gainVal, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    } catch (e) {
+      // Audio fallback silent
     }
-};
-const useCurrentDateEffect = () => {
-    const [date, setDate] = React.useState(new Date());
-    React.useEffect(() => {
-        const interval = setInterval(() => {
-            const update = new Date();
-            if (update.getSeconds() !== date.getSeconds()) {
-                setDate(update);
-            }
-        }, 100);
-        return () => clearInterval(interval);
-    }, [date]);
-    return date;
-};
-const ScrollableComponent = (props) => {
-    const ref = React.useRef(null);
-    const [state, setStateTo] = React.useState({
-        grabbing: false,
-        position: defaultPosition()
+  }
+
+  if (audioToggle) {
+    audioToggle.addEventListener('click', () => {
+      initAudio();
+      audioEnabled = !audioEnabled;
+      if (audioEnabled) {
+        audioIcon.className = 'fa-solid fa-volume-high text-cyan';
+        playSynthSound(880, 'triangle', 0.12, 0.08);
+      } else {
+        audioIcon.className = 'fa-solid fa-volume-xmark text-muted';
+      }
     });
-    const handleOnMouseDown = (e) => {
-        setStateTo(Object.assign(Object.assign({}, state), { grabbing: true, position: {
-                x: e.clientX,
-                left: ref.current.scrollLeft
-            } }));
-    };
-    const handleOnMouseMove = (e) => {
-        if (state.grabbing) {
-            const left = Math.max(0, state.position.left + (state.position.x - e.clientX));
-            ref.current.scrollLeft = left;
+  }
+
+  // Play blip on interactive buttons
+  document.querySelectorAll('.cyber-btn, .term-quick-cmd, .filter-btn').forEach(btn => {
+    btn.addEventListener('mouseenter', () => playSynthSound(520, 'sine', 0.04, 0.02));
+    btn.addEventListener('click', () => playSynthSound(780, 'triangle', 0.08, 0.04));
+  });
+
+  /* ==========================================================================
+     2. Interactive HTML5 Canvas Cyber Grid & Constellation
+     ========================================================================== */
+  const canvas = document.getElementById('cyberCanvas');
+  if (canvas) {
+    const ctx = canvas.getContext('2d');
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+
+    window.addEventListener('resize', () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+      initParticles();
+    });
+
+    const particles = [];
+    const particleCount = Math.min(Math.floor((width * height) / 18000), 75);
+    const mouse = { x: null, y: null, radius: 120 };
+
+    window.addEventListener('mousemove', (e) => {
+      mouse.x = e.x;
+      mouse.y = e.y;
+    });
+
+    window.addEventListener('mouseout', () => {
+      mouse.x = null;
+      mouse.y = null;
+    });
+
+    class Particle {
+      constructor() {
+        this.x = Math.random() * width;
+        this.y = Math.random() * height;
+        this.size = Math.random() * 2 + 1;
+        this.speedX = (Math.random() - 0.5) * 0.8;
+        this.speedY = (Math.random() - 0.5) * 0.8;
+        this.color = Math.random() > 0.4 ? '#00f5d4' : (Math.random() > 0.5 ? '#ff2a85' : '#05ffa1');
+      }
+
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+
+        if (this.x < 0 || this.x > width) this.speedX *= -1;
+        if (this.y < 0 || this.y > height) this.speedY *= -1;
+
+        // Mouse interaction
+        if (mouse.x !== null && mouse.y !== null) {
+          const dx = mouse.x - this.x;
+          const dy = mouse.y - this.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < mouse.radius) {
+            const force = (mouse.radius - dist) / mouse.radius;
+            this.x -= (dx / dist) * force * 3;
+            this.y -= (dy / dist) * force * 3;
+          }
         }
-    };
-    const handleOnMouseUp = () => {
-        if (state.grabbing) {
-            setStateTo(Object.assign(Object.assign({}, state), { grabbing: false }));
+      }
+
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = this.color;
+        ctx.fill();
+      }
+    }
+
+    function initParticles() {
+      particles.length = 0;
+      for (let i = 0; i < particleCount; i++) {
+        particles.push(new Particle());
+      }
+    }
+
+    initParticles();
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, width, height);
+
+      // Connect nearby particles
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+
+          if (distance < 110) {
+            ctx.beginPath();
+            ctx.strokeStyle = `rgba(0, 245, 212, ${0.18 * (1 - distance / 110)})`;
+            ctx.lineWidth = 0.75;
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.stroke();
+          }
         }
-    };
-    return (React.createElement("div", { ref: ref, className: classNames("scrollable-component", props.className), id: props.id, onMouseDown: handleOnMouseDown, onMouseMove: handleOnMouseMove, onMouseUp: handleOnMouseUp, onMouseLeave: handleOnMouseUp }, props.children));
-};
-const WeatherSnap = () => {
-    const [temperature] = React.useState(N.rand(65, 85));
-    return (React.createElement("span", { className: "weather" },
-        React.createElement("i", { className: "weather-type", className: "fa-duotone fa-sun" }),
-        React.createElement("span", { className: "weather-temperature-value" }, temperature),
-        React.createElement("span", { className: "weather-temperature-unit" }, "\u00B0F")));
-};
-const Reminder = () => {
-    return (React.createElement("div", { className: "reminder" },
-        React.createElement("div", { className: "reminder-icon" },
-            React.createElement("i", { className: "fa-regular fa-bell" })),
-        React.createElement("span", { className: "reminder-text" },
-            "Extra cool people meeting ",
-            React.createElement("span", { className: "reminder-time" }, "10AM"))));
-};
-const Time = () => {
-    const date = useCurrentDateEffect();
-    return (React.createElement("span", { className: "time" }, T.format(date)));
-};
-const Info = (props) => {
-    return (React.createElement("div", { id: props.id, className: "info" },
-        React.createElement(Time, null),
-        React.createElement(WeatherSnap, null)));
-};
-const PinDigit = (props) => {
-    const [hidden, setHiddenTo] = React.useState(false);
-    React.useEffect(() => {
-        if (props.value) {
-            const timeout = setTimeout(() => {
-                setHiddenTo(true);
-            }, 500);
-            return () => {
-                setHiddenTo(false);
-                clearTimeout(timeout);
-            };
+      }
+
+      particles.forEach(p => {
+        p.update();
+        p.draw();
+      });
+
+      requestAnimationFrame(animateParticles);
+    }
+
+    animateParticles();
+  }
+
+  /* ==========================================================================
+     3. Typewriter Headline Loop
+     ========================================================================== */
+  const typewriterText = document.getElementById('typewriterText');
+  if (typewriterText) {
+    const phrases = [
+      'Cybersecurity & Systems Builder',
+      'Embedded Hardware & IoT Maker',
+      'Defense Tech & Autonomous Platforms',
+      'Building Resilient, Secure Software',
+      'Architecting for High-Pressure Environments'
+    ];
+    let phraseIndex = 0;
+    let charIndex = 0;
+    let isDeleting = false;
+    const typeSpeed = 75;
+    const deleteSpeed = 40;
+    const pauseTime = 1800;
+
+    function typeLoop() {
+      const currentPhrase = phrases[phraseIndex];
+
+      if (isDeleting) {
+        typewriterText.textContent = currentPhrase.substring(0, charIndex - 1);
+        charIndex--;
+      } else {
+        typewriterText.textContent = currentPhrase.substring(0, charIndex + 1);
+        charIndex++;
+      }
+
+      if (!isDeleting && charIndex === currentPhrase.length) {
+        isDeleting = true;
+        setTimeout(typeLoop, pauseTime);
+        return;
+      } else if (isDeleting && charIndex === 0) {
+        isDeleting = false;
+        phraseIndex = (phraseIndex + 1) % phrases.length;
+      }
+
+      setTimeout(typeLoop, isDeleting ? deleteSpeed : typeSpeed);
+    }
+
+    typeLoop();
+  }
+
+  /* ==========================================================================
+     4. Real-Time Telemetry Clock (IST / UTC)
+     ========================================================================== */
+  const hudClock = document.getElementById('hudClock');
+  function updateTelemetryClock() {
+    if (!hudClock) return;
+    const now = new Date();
+    // Indian Standard Time format
+    const istTime = now.toLocaleTimeString('en-US', {
+      timeZone: 'Asia/Kolkata',
+      hour12: false,
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+    hudClock.textContent = `${istTime} IST`;
+  }
+  updateTelemetryClock();
+  setInterval(updateTelemetryClock, 1000);
+
+  /* ==========================================================================
+     5. Interactive Terminal Console Emulator
+     ========================================================================== */
+  const terminalInput = document.getElementById('terminalInput');
+  const terminalOutput = document.getElementById('terminalOutput');
+  const termSubmitBtn = document.getElementById('termSubmitBtn');
+  const commandHistory = [];
+  let historyIndex = -1;
+
+  const terminalCommands = {
+    help: () => `
+<span class="highlight-cyan">AVAILABLE DIRECTIVES:</span>
+  <span class="highlight-green">bio</span>       - View identity dossier and engineering philosophy
+  <span class="highlight-green">skills</span>    - Technical proficiencies & arsenal
+  <span class="highlight-green">projects</span>  - Index of public repositories & live platforms
+  <span class="highlight-green">stats</span>     - GitHub profile metrics & activity
+  <span class="highlight-green">contact</span>   - Transmission channels & links
+  <span class="highlight-green">whoami</span>    - Current session credentials
+  <span class="highlight-green">dragon</span>    - Render dragon sigil
+  <span class="highlight-green">clear</span>     - Purge terminal buffer
+`,
+
+    bio: () => `
+<span class="highlight-cyan">[DOSSIER: RAHUL SINGH // cyb3rdr4g0n17]</span>
+• Mission: Building secure, intelligent, and resilient systems for real-world and mission-critical applications.
+• Focus: Cybersecurity, Embedded Hardware (Arduino/Raspberry Pi), Autonomous AI Systems, Defense Readiness.
+• Philosophy: Security by architecture, zero-trust resilience, low-latency performance.
+`,
+
+    skills: () => `
+<span class="highlight-cyan">[ARSENAL BREAKDOWN]</span>
+• Languages: Python, C/C++, Modern JavaScript, GNU Bash / Shell Scripting, HTML5/CSS3
+• Systems & Hardware: Raspberry Pi (3/4/5), Arduino, AVR, Kiosk KVM, Android On-Device SDK
+• Security: System Hardening, Network Analysis, OSINT, Threat-aware Architecture
+• Deployment & Tooling: Linux (Debian/Arch), Git, Termux, AndroidIDE, Vercel
+`,
+
+    projects: () => `
+<span class="highlight-cyan">[FEATURED DEPLOYMENTS]</span>
+1. <a href="https://ssb-tat-handbook.vercel.app" target="_blank" class="highlight-green">ssb-tat-handbook</a> - Armed Forces SSB TAT psychological preparation platform (Live on Vercel).
+2. <a href="https://github.com/cyb3rdr4g0n17/AndroidIDEInstaller" target="_blank" class="highlight-green">AndroidIDEInstaller</a> - Automated on-device Android SDK installer for mobile phones [5 Stars].
+3. <a href="https://github.com/cyb3rdr4g0n17/digital-signage" target="_blank" class="highlight-green">digital-signage</a> - Local, zero-internet media platform for Raspberry Pi & Android TV.
+4. <a href="https://github.com/cyb3rdr4g0n17/Electronics" target="_blank" class="highlight-green">Electronics</a> - Arduino circuit sketches, drivers, and physical computing.
+5. <a href="https://github.com/cyb3rdr4g0n17/open-notebook" target="_blank" class="highlight-green">open-notebook</a> - Open-source alternative to NotebookLM for private knowledge synthesis.
+6. <a href="https://github.com/cyb3rdr4g0n17/SmsBomber" target="_blank" class="highlight-green">SmsBomber</a> - Penetration testing & API rate-limiting stress evaluation [4 Stars].
+`,
+
+    stats: () => `
+<span class="highlight-cyan">[TELEMETRY REPORT]</span>
+• Public Repositories: 12
+• Key Starred Projects: AndroidIDEInstaller (5★), SmsBomber (4★)
+• Primary GitHub URL: https://github.com/cyb3rdr4g0n17
+• System State: All nodes active and responding to ping.
+`,
+
+    contact: () => `
+<span class="highlight-cyan">[TRANSMISSION CHANNELS]</span>
+• GitHub: <a href="https://github.com/cyb3rdr4g0n17" target="_blank" class="highlight-green">https://github.com/cyb3rdr4g0n17</a>
+• Platform: <a href="https://ssb-tat-handbook.vercel.app" target="_blank" class="highlight-green">https://ssb-tat-handbook.vercel.app</a>
+• Collaboration: Open for defense tech, security research, and embedded IoT hardware.
+`,
+
+    whoami: () => `
+UID: 48344737
+User: cyb3rdr4g0n17 (Rahul Singh)
+Role: Systems & Security Maker
+Access Level: Root Sovereign
+`,
+
+    dragon: () => `
+<pre class="ascii-dragon" style="margin: 0;">
+                __----~~~~~~~~~~~------___
+               /                            -~~--_
+             _/                             /     ~-
+           /                               /        ~-
+          /     /                         /           ~-
+        /      /                         /             ~-
+       /      /                         /               ~-
+      /      /                         /                 ~-
+     /      /                         /                   ~-
+    |      /                         /                     ~-
+   /      /                         /                       ~-
+  /      /                         /                         ~-
+ /      /                         /                           ~-
+|      /                         /                             ~-
+|     /                         /                               ~-
+|    /                         /                                 ~-
+ 🐉 CYB3RDR4G0N // KNOWLEDGE IS POWER • RESILIENCE IS SHIELD 🐉
+</pre>
+`
+  };
+
+  function executeTerminalCommand(rawInput) {
+    const cleanCmd = rawInput.trim().toLowerCase();
+    if (!cleanCmd) return;
+
+    commandHistory.push(rawInput);
+    historyIndex = commandHistory.length;
+
+    // Append prompt line
+    const promptLine = document.createElement('div');
+    promptLine.className = 'term-line';
+    promptLine.innerHTML = `<span class="term-user-prompt">guest@cyb3rdr4g0n:~$</span> ${escapeHTML(rawInput)}`;
+    terminalOutput.appendChild(promptLine);
+
+    playSynthSound(cleanCmd === 'clear' ? 350 : 640, 'triangle', 0.08, 0.05);
+
+    if (cleanCmd === 'clear') {
+      terminalOutput.innerHTML = '';
+    } else if (terminalCommands[cleanCmd]) {
+      const responseLine = document.createElement('div');
+      responseLine.className = 'term-line';
+      responseLine.innerHTML = terminalCommands[cleanCmd]();
+      terminalOutput.appendChild(responseLine);
+    } else {
+      const errLine = document.createElement('div');
+      errLine.className = 'term-line';
+      errLine.innerHTML = `<span class="text-red">command not recognized: '${escapeHTML(cleanCmd)}'. Type <span class="highlight-cyan">'help'</span> for list of commands.</span>`;
+      terminalOutput.appendChild(errLine);
+    }
+
+    terminalOutput.scrollTop = terminalOutput.scrollHeight;
+    terminalInput.value = '';
+  }
+
+  function escapeHTML(str) {
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  if (terminalInput) {
+    terminalInput.addEventListener('keydown', (e) => {
+      playSynthSound(420 + Math.random() * 200, 'sine', 0.02, 0.015);
+
+      if (e.key === 'Enter') {
+        executeTerminalCommand(terminalInput.value);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (commandHistory.length > 0 && historyIndex > 0) {
+          historyIndex--;
+          terminalInput.value = commandHistory[historyIndex];
         }
-    }, [props.value]);
-    return (React.createElement("div", { className: classNames("app-pin-digit", { focused: props.focused, hidden }) },
-        React.createElement("span", { className: "app-pin-digit-value" }, props.value || "")));
-};
-const Pin = () => {
-    const { userStatus, setUserStatusTo } = React.useContext(AppContext);
-    const [pin, setPinTo] = React.useState("");
-    const ref = React.useRef(null);
-    React.useEffect(() => {
-        if (userStatus === UserStatus.LoggingIn || userStatus === UserStatus.LogInError) {
-            ref.current.focus();
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (historyIndex < commandHistory.length - 1) {
+          historyIndex++;
+          terminalInput.value = commandHistory[historyIndex];
+        } else {
+          historyIndex = commandHistory.length;
+          terminalInput.value = '';
         }
-        else {
-            setPinTo("");
+      }
+    });
+
+    if (termSubmitBtn) {
+      termSubmitBtn.addEventListener('click', () => {
+        executeTerminalCommand(terminalInput.value);
+        terminalInput.focus();
+      });
+    }
+
+    // Quick Command Pills
+    document.querySelectorAll('.term-quick-cmd').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const cmd = btn.getAttribute('data-cmd');
+        if (cmd) {
+          executeTerminalCommand(cmd);
+          terminalInput.focus();
         }
-    }, [userStatus]);
-    React.useEffect(() => {
-        if (pin.length === 4) {
-            const verify = async () => {
-                try {
-                    setUserStatusTo(UserStatus.VerifyingLogIn);
-                    if (await LogInUtility.verify(pin)) {
-                        setUserStatusTo(UserStatus.LoggedIn);
-                    }
-                }
-                catch (err) {
-                    console.error(err);
-                    setUserStatusTo(UserStatus.LogInError);
-                }
-            };
-            verify();
+      });
+    });
+  }
+
+  /* ==========================================================================
+     6. Projects Category Filter
+     ========================================================================== */
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  const projectCards = document.querySelectorAll('.project-card');
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const filterVal = btn.getAttribute('data-filter');
+
+      projectCards.forEach(card => {
+        const cardCat = card.getAttribute('data-category');
+        if (filterVal === 'all' || cardCat === filterVal) {
+          card.style.display = 'flex';
+          card.style.opacity = '0';
+          setTimeout(() => {
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+          }, 30);
+        } else {
+          card.style.display = 'none';
         }
-        if (userStatus === UserStatus.LogInError) {
-            setUserStatusTo(UserStatus.LoggingIn);
+      });
+    });
+  });
+
+  /* ==========================================================================
+     7. Contact Transmission Simulator
+     ========================================================================== */
+  const contactForm = document.getElementById('contactForm');
+  const formFeedback = document.getElementById('formFeedback');
+
+  if (contactForm && formFeedback) {
+    contactForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('contactName').value;
+      const email = document.getElementById('contactEmail').value;
+      const message = document.getElementById('contactMessage').value;
+
+      playSynthSound(900, 'triangle', 0.15, 0.08);
+
+      formFeedback.innerHTML = `
+        <span class="text-cyan"><i class="fa-solid fa-spinner fa-spin"></i> ENCRYPTING 256-BIT PAYLOAD & DISPATCHING TO DRAGON RELAY...</span>
+      `;
+
+      setTimeout(() => {
+        playSynthSound(1050, 'sine', 0.2, 0.09);
+        formFeedback.innerHTML = `
+          <span class="text-green"><i class="fa-solid fa-check"></i> TRANSMISSION DELIVERED TO RAHUL SINGH. STATUS: RECEIVED.</span>
+        `;
+        contactForm.reset();
+
+        // Also echo into terminal if visible
+        const echoLine = document.createElement('div');
+        echoLine.className = 'term-line';
+        echoLine.innerHTML = `<span class="highlight-green">[SYSTEM_NOTIFICATION] Transmission payload from '${escapeHTML(name)}' (${escapeHTML(email)}) safely registered in local logs.</span>`;
+        if (terminalOutput) {
+          terminalOutput.appendChild(echoLine);
+          terminalOutput.scrollTop = terminalOutput.scrollHeight;
         }
-    }, [pin]);
-    const handleOnClick = () => {
-        ref.current.focus();
-    };
-    const handleOnCancel = () => {
-        setUserStatusTo(UserStatus.LoggedOut);
-    };
-    const handleOnChange = (e) => {
-        if (e.target.value.length <= 4) {
-            setPinTo(e.target.value.toString());
-        }
-    };
-    const getCancelText = () => {
-        return (React.createElement("span", { id: "app-pin-cancel-text", onClick: handleOnCancel }, "Cancel"));
-    };
-    const getErrorText = () => {
-        if (userStatus === UserStatus.LogInError) {
-            return (React.createElement("span", { id: "app-pin-error-text" }, "Invalid"));
-        }
-    };
-    return (React.createElement("div", { id: "app-pin-wrapper" },
-        React.createElement("input", { disabled: userStatus !== UserStatus.LoggingIn && userStatus !== UserStatus.LogInError, id: "app-pin-hidden-input", maxLength: 4, ref: ref, type: "number", value: pin, onChange: handleOnChange }),
-        React.createElement("div", { id: "app-pin", onClick: handleOnClick },
-            React.createElement(PinDigit, { focused: pin.length === 0, value: pin[0] }),
-            React.createElement(PinDigit, { focused: pin.length === 1, value: pin[1] }),
-            React.createElement(PinDigit, { focused: pin.length === 2, value: pin[2] }),
-            React.createElement(PinDigit, { focused: pin.length === 3, value: pin[3] })),
-        React.createElement("h3", { id: "app-pin-label" },
-            "Enter PIN (1234) ",
-            getErrorText(),
-            " ",
-            getCancelText())));
-};
-const MenuSection = (props) => {
-    const getContent = () => {
-        if (props.scrollable) {
-            return (React.createElement(ScrollableComponent, { className: "menu-section-content" }, props.children));
-        }
-        return (React.createElement("div", { className: "menu-section-content" }, props.children));
-    };
-    return (React.createElement("div", { id: props.id, className: "menu-section" },
-        React.createElement("div", { className: "menu-section-title" },
-            React.createElement("i", { className: props.icon }),
-            React.createElement("span", { className: "menu-section-title-text" }, props.title)),
-        getContent()));
-};
-const QuickNav = () => {
-    const getItems = () => {
-        return [{
-                id: 1,
-                label: "Weather"
-            }, {
-                id: 2,
-                label: "Food"
-            }, {
-                id: 3,
-                label: "Apps"
-            }, {
-                id: 4,
-                label: "Movies"
-            }].map((item) => {
-            return (React.createElement("div", { key: item.id, className: "quick-nav-item clear-button" },
-                React.createElement("span", { className: "quick-nav-item-label" }, item.label)));
-        });
-    };
-    return (React.createElement(ScrollableComponent, { id: "quick-nav" }, getItems()));
-};
-const Weather = () => {
-    const getDays = () => {
-        return [{
-                id: 1,
-                name: "Mon",
-                temperature: N.rand(60, 80),
-                weather: WeatherType.Sunny
-            }, {
-                id: 2,
-                name: "Tues",
-                temperature: N.rand(60, 80),
-                weather: WeatherType.Sunny
-            }, {
-                id: 3,
-                name: "Wed",
-                temperature: N.rand(60, 80),
-                weather: WeatherType.Cloudy
-            }, {
-                id: 4,
-                name: "Thurs",
-                temperature: N.rand(60, 80),
-                weather: WeatherType.Rainy
-            }, {
-                id: 5,
-                name: "Fri",
-                temperature: N.rand(60, 80),
-                weather: WeatherType.Stormy
-            }, {
-                id: 6,
-                name: "Sat",
-                temperature: N.rand(60, 80),
-                weather: WeatherType.Sunny
-            }, {
-                id: 7,
-                name: "Sun",
-                temperature: N.rand(60, 80),
-                weather: WeatherType.Cloudy
-            }].map((day) => {
-            const getIcon = () => {
-                switch (day.weather) {
-                    case WeatherType.Cloudy:
-                        return "fa-duotone fa-clouds";
-                    case WeatherType.Rainy:
-                        return "fa-duotone fa-cloud-drizzle";
-                    case WeatherType.Stormy:
-                        return "fa-duotone fa-cloud-bolt";
-                    case WeatherType.Sunny:
-                        return "fa-duotone fa-sun";
-                }
-            };
-            return (React.createElement("div", { key: day.id, className: "day-card" },
-                React.createElement("div", { className: "day-card-content" },
-                    React.createElement("span", { className: "day-weather-temperature" },
-                        day.temperature,
-                        React.createElement("span", { className: "day-weather-temperature-unit" }, "\u00B0F")),
-                    React.createElement("i", { className: classNames("day-weather-icon", getIcon(), day.weather.toLowerCase()) }),
-                    React.createElement("span", { className: "day-name" }, day.name))));
-        });
-    };
-    return (React.createElement(MenuSection, { icon: "fa-solid fa-sun", id: "weather-section", scrollable: true, title: "How's it look out there?" }, getDays()));
-};
-const Tools = () => {
-    const getTools = () => {
-        return [{
-                icon: "fa-solid fa-cloud-sun",
-                id: 1,
-                image: "https://images.unsplash.com/photo-1492011221367-f47e3ccd77a0?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTV8fHdlYXRoZXJ8ZW58MHx8MHx8&auto=format&fit=crop&w=500&q=60",
-                label: "Weather",
-                name: "Cloudly"
-            }, {
-                icon: "fa-solid fa-calculator-simple",
-                id: 2,
-                image: "https://images.unsplash.com/photo-1587145820266-a5951ee6f620?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NXx8Y2FsY3VsYXRvcnxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500&q=60",
-                label: "Calc",
-                name: "Mathio"
-            }, {
-                icon: "fa-solid fa-piggy-bank",
-                id: 3,
-                image: "https://images.unsplash.com/photo-1579621970588-a35d0e7ab9b6?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8OHx8YmFua3xlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500&q=60",
-                label: "Bank",
-                name: "Cashy"
-            }, {
-                icon: "fa-solid fa-plane",
-                id: 4,
-                image: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8YWlycGxhbmV8ZW58MHx8MHx8&auto=format&fit=crop&w=500&q=60",
-                label: "Travel",
-                name: "Fly-er-io-ly"
-            }, {
-                icon: "fa-solid fa-gamepad-modern",
-                id: 5,
-                image: "https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NXx8dmlkZW8lMjBnYW1lc3xlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500&q=60",
-                label: "Games",
-                name: "Gamey"
-            }, {
-                icon: "fa-solid fa-video",
-                id: 6,
-                image: "https://images.unsplash.com/photo-1578022761797-b8636ac1773c?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTJ8fHZpZGVvJTIwY2hhdHxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500&q=60",
-                label: "Video Chat",
-                name: "Chatty"
-            }].map((tool) => {
-            const styles = {
-                backgroundImage: `url(${tool.image})`
-            };
-            return (React.createElement("div", { key: tool.id, className: "tool-card" },
-                React.createElement("div", { className: "tool-card-background background-image", style: styles }),
-                React.createElement("div", { className: "tool-card-content" },
-                    React.createElement("div", { className: "tool-card-content-header" },
-                        React.createElement("span", { className: "tool-card-label" }, tool.label),
-                        React.createElement("span", { className: "tool-card-name" }, tool.name)),
-                    React.createElement("i", { className: classNames(tool.icon, "tool-card-icon") }))));
-        });
-    };
-    return (React.createElement(MenuSection, { icon: "fa-solid fa-toolbox", id: "tools-section", title: "What's Appening?" }, getTools()));
-};
-const Restaurants = () => {
-    const getRestaurants = () => {
-        return [{
-                desc: "The best burgers in town",
-                id: 1,
-                image: "https://images.unsplash.com/photo-1606131731446-5568d87113aa?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8YnVyZ2Vyc3xlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500&q=60",
-                title: "Burgers"
-            }, {
-                desc: "The worst ice-cream around",
-                id: 2,
-                image: "https://images.unsplash.com/photo-1576506295286-5cda18df43e7?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8M3x8aWNlJTIwY3JlYW18ZW58MHx8MHx8&auto=format&fit=crop&w=500&q=60",
-                title: "Ice Cream"
-            }, {
-                desc: "This 'Za be gettin down",
-                id: 3,
-                image: "https://images.unsplash.com/photo-1590947132387-155cc02f3212?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Nnx8cGl6emF8ZW58MHx8MHx8&auto=format&fit=crop&w=500&q=60",
-                title: "Pizza"
-            }, {
-                desc: "BBQ ain't need no rhyme",
-                id: 4,
-                image: "https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8OXx8YmFyYmVxdWV8ZW58MHx8MHx8&auto=format&fit=crop&w=500&q=60",
-                title: "BBQ"
-            }].map((restaurant) => {
-            const styles = {
-                backgroundImage: `url(${restaurant.image})`
-            };
-            return (React.createElement("div", { key: restaurant.id, className: "restaurant-card background-image", style: styles },
-                React.createElement("div", { className: "restaurant-card-content" },
-                    React.createElement("div", { className: "restaurant-card-content-items" },
-                        React.createElement("span", { className: "restaurant-card-title" }, restaurant.title),
-                        React.createElement("span", { className: "restaurant-card-desc" }, restaurant.desc)))));
-        });
-    };
-    return (React.createElement(MenuSection, { icon: "fa-regular fa-pot-food", id: "restaurants-section", title: "Get it delivered!" }, getRestaurants()));
-};
-const Movies = () => {
-    const getMovies = () => {
-        return [{
-                desc: "A tale of some people watching over a large portion of space.",
-                id: 1,
-                icon: "fa-solid fa-galaxy",
-                image: "https://images.unsplash.com/photo-1596727147705-61a532a659bd?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8bWFydmVsfGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=500&q=60",
-                title: "Protectors of the Milky Way"
-            }, {
-                desc: "Some people leave their holes to disrupt some things.",
-                id: 2,
-                icon: "fa-solid fa-hat-wizard",
-                image: "https://images.unsplash.com/photo-1535666669445-e8c15cd2e7d9?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8bG9yZCUyMG9mJTIwdGhlJTIwcmluZ3N8ZW58MHx8MHx8&auto=format&fit=crop&w=500&q=60",
-                title: "Hole People"
-            }, {
-                desc: "A boy with a dent in his head tries to stop a bad guy. And by bad I mean bad at winning.",
-                id: 3,
-                icon: "fa-solid fa-broom-ball",
-                image: "https://images.unsplash.com/photo-1632266484284-a11d9e3a460a?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTZ8fGhhcnJ5JTIwcG90dGVyfGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=500&q=60",
-                title: "Pot of Hair"
-            }, {
-                desc: "A long drawn out story of some people fighting over some space. Cuz there isn't enough of it.",
-                id: 4,
-                icon: "fa-solid fa-starship-freighter",
-                image: "https://images.unsplash.com/photo-1533613220915-609f661a6fe1?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8c3RhciUyMHdhcnN8ZW58MHx8MHx8&auto=format&fit=crop&w=500&q=60",
-                title: "Area Fights"
-            }].map((movie) => {
-            const styles = {
-                backgroundImage: `url(${movie.image})`
-            };
-            const id = `movie-card-${movie.id}`;
-            return (React.createElement("div", { key: movie.id, id: id, className: "movie-card" },
-                React.createElement("div", { className: "movie-card-background background-image", style: styles }),
-                React.createElement("div", { className: "movie-card-content" },
-                    React.createElement("div", { className: "movie-card-info" },
-                        React.createElement("span", { className: "movie-card-title" }, movie.title),
-                        React.createElement("span", { className: "movie-card-desc" }, movie.desc)),
-                    React.createElement("i", { className: movie.icon }))));
-        });
-    };
-    return (React.createElement(MenuSection, { icon: "fa-solid fa-camera-movie", id: "movies-section", scrollable: true, title: "Popcorn time!" }, getMovies()));
-};
-const UserStatusButton = (props) => {
-    const { userStatus, setUserStatusTo } = React.useContext(AppContext);
-    const handleOnClick = () => {
-        setUserStatusTo(props.userStatus);
-    };
-    return (React.createElement("button", { id: props.id, className: "user-status-button clear-button", disabled: userStatus === props.userStatus, type: "button", onClick: handleOnClick },
-        React.createElement("i", { className: props.icon })));
-};
-const Menu = () => {
-    return (React.createElement("div", { id: "app-menu" },
-        React.createElement("div", { id: "app-menu-content-wrapper" },
-            React.createElement("div", { id: "app-menu-content" },
-                React.createElement("div", { id: "app-menu-content-header" },
-                    React.createElement("div", { className: "app-menu-content-header-section" },
-                        React.createElement(Info, { id: "app-menu-info" }),
-                        React.createElement(Reminder, null)),
-                    React.createElement("div", { className: "app-menu-content-header-section" },
-                        React.createElement(UserStatusButton, { icon: "fa-solid fa-arrow-right-from-arc", id: "sign-out-button", userStatus: UserStatus.LoggedOut }))),
-                React.createElement(QuickNav, null),
-                React.createElement("a", { id: "youtube-link", className: "clear-button", href: "https://www.youtube.com/c/Hyperplexed", target: "_blank" },
-                    React.createElement("i", { className: "fa-brands fa-youtube" }),
-                    React.createElement("span", null, "Hyperplexed")),
-                React.createElement(Weather, null),
-                React.createElement(Restaurants, null),
-                React.createElement(Tools, null),
-                React.createElement(Movies, null)))));
-};
-const Background = () => {
-    const { userStatus, setUserStatusTo } = React.useContext(AppContext);
-    const handleOnClick = () => {
-        if (userStatus === UserStatus.LoggedOut) {
-            setUserStatusTo(UserStatus.LoggingIn);
-        }
-    };
-    return (React.createElement("div", { id: "app-background", onClick: handleOnClick },
-        React.createElement("div", { id: "app-background-image", className: "background-image" })));
-};
-const Loading = () => {
-    return (React.createElement("div", { id: "app-loading-icon" },
-        React.createElement("i", { className: "fa-solid fa-spinner-third" })));
-};
-const AppContext = React.createContext(null);
-const App = () => {
-    const [userStatus, setUserStatusTo] = React.useState(UserStatus.LoggedOut);
-    const getStatusClass = () => {
-        return userStatus.replace(/\s+/g, "-").toLowerCase();
-    };
-    return (React.createElement(AppContext.Provider, { value: { userStatus, setUserStatusTo } },
-        React.createElement("div", { id: "app", className: getStatusClass() },
-            React.createElement(Info, { id: "app-info" }),
-            React.createElement(Pin, null),
-            React.createElement(Menu, null),
-            React.createElement(Background, null),
-            React.createElement("div", { id: "sign-in-button-wrapper" },
-                React.createElement(UserStatusButton, { icon: "fa-solid fa-arrow-right-to-arc", id: "sign-in-button", userStatus: UserStatus.LoggingIn })),
-            React.createElement(Loading, null))));
-};
-ReactDOM.render(React.createElement(App, null), document.getElementById("root"));
+      }, 1200);
+    });
+  }
+
+  /* ==========================================================================
+     8. Mobile Navigation & Header Scroll State
+     ========================================================================== */
+  const topNav = document.getElementById('topNav');
+  const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+  const navLinks = document.getElementById('navLinks');
+
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 40) {
+      topNav.classList.add('scrolled');
+    } else {
+      topNav.classList.remove('scrolled');
+    }
+  });
+
+  if (mobileMenuBtn && navLinks) {
+    mobileMenuBtn.addEventListener('click', () => {
+      navLinks.classList.toggle('open');
+      playSynthSound(600, 'sine', 0.05, 0.03);
+    });
+
+    document.querySelectorAll('.nav-link').forEach(link => {
+      link.addEventListener('click', () => {
+        navLinks.classList.remove('open');
+      });
+    });
+  }
+
+  /* ==========================================================================
+     9. Interactive 3D Tilt for HUD Avatar Card
+     ========================================================================== */
+  const hudCard = document.getElementById('hudCard');
+  if (hudCard && window.innerWidth > 992) {
+    hudCard.addEventListener('mousemove', (e) => {
+      const rect = hudCard.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      const rotateX = ((y - centerY) / centerY) * -7;
+      const rotateY = ((x - centerX) / centerX) * 7;
+      hudCard.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px)`;
+    });
+
+    hudCard.addEventListener('mouseleave', () => {
+      hudCard.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0)';
+    });
+  }
+
+  console.log("%cλ_CYB3RDR4G0N SYSTEM V2.6 ONLINE", "color: #00f5d4; font-family: monospace; font-size: 16px; font-weight: bold; background: #07090e; padding: 6px;");
+});
