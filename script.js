@@ -272,17 +272,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     projects: () => `
 <span class="highlight-cyan">[FEATURED DEPLOYMENTS]</span>
-1. <a href="https://ssb-tat-handbook.vercel.app" target="_blank" class="highlight-green">ssb-tat-handbook</a> - Armed Forces SSB TAT psychological preparation platform (Live on Vercel).
-2. <a href="https://github.com/cyb3rdr4g0n17/AndroidIDEInstaller" target="_blank" class="highlight-green">AndroidIDEInstaller</a> - Automated on-device Android SDK installer for mobile phones [5 Stars].
-3. <a href="https://github.com/cyb3rdr4g0n17/digital-signage" target="_blank" class="highlight-green">digital-signage</a> - Local, zero-internet media platform for Raspberry Pi & Android TV.
-4. <a href="https://github.com/cyb3rdr4g0n17/Electronics" target="_blank" class="highlight-green">Electronics</a> - Arduino circuit sketches, drivers, and physical computing.
-5. <a href="https://github.com/cyb3rdr4g0n17/open-notebook" target="_blank" class="highlight-green">open-notebook</a> - Open-source alternative to NotebookLM for private knowledge synthesis.
-6. <a href="https://github.com/cyb3rdr4g0n17/SmsBomber" target="_blank" class="highlight-green">SmsBomber</a> - Penetration testing & API rate-limiting stress evaluation [4 Stars].
+1. <a href="https://cyb3rdr4g0n17.github.io/md-studio/" target="_blank" class="highlight-green">md-studio</a> - Zero-backend Markdown publishing suite with KaTeX math, Mermaid diagrams, Word (.docx) & Vector PDF export.
+2. <a href="https://ssb-tat-handbook.vercel.app" target="_blank" class="highlight-green">ssb-tat-handbook</a> - Armed Forces SSB TAT psychological preparation platform (Live on Vercel).
+3. <a href="https://github.com/cyb3rdr4g0n17/AndroidIDEInstaller" target="_blank" class="highlight-green">AndroidIDEInstaller</a> - Automated on-device Android SDK installer for mobile phones [5 Stars].
+4. <a href="https://github.com/cyb3rdr4g0n17/digital-signage" target="_blank" class="highlight-green">digital-signage</a> - Local, zero-internet media platform for Raspberry Pi & Android TV.
+5. <a href="https://github.com/cyb3rdr4g0n17/Electronics" target="_blank" class="highlight-green">Electronics</a> - Arduino circuit sketches, drivers, and physical computing.
+6. <a href="https://github.com/cyb3rdr4g0n17/open-notebook" target="_blank" class="highlight-green">open-notebook</a> - Open-source alternative to NotebookLM for private knowledge synthesis.
+7. <a href="https://github.com/cyb3rdr4g0n17/SmsBomber" target="_blank" class="highlight-green">SmsBomber</a> - Penetration testing & API rate-limiting stress evaluation [4 Stars].
 `,
 
     stats: () => `
 <span class="highlight-cyan">[TELEMETRY REPORT]</span>
-• Public Repositories: 12
+• Public Repositories: 13
 • Key Starred Projects: AndroidIDEInstaller (5★), SmsBomber (4★)
 • Primary GitHub URL: https://github.com/cyb3rdr4g0n17
 • System State: All nodes active and responding to ping.
